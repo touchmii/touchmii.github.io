@@ -3,7 +3,7 @@
     <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Hello Gridea | Gridea</title>
-<link rel="shortcut icon" href="https://touchmii.github.io/favicon.ico?v=1602464114120">
+<link rel="shortcut icon" href="https://touchmii.github.io/favicon.ico?v=1602464418059">
 <link href="https://cdn.jsdelivr.net/npm/remixicon@2.3.0/fonts/remixicon.css" rel="stylesheet">
 <link rel="stylesheet" href="https://touchmii.github.io/styles/main.css">
 <link rel="alternate" type="application/atom+xml" title="Hello Gridea | Gridea - Atom Feed" href="https://touchmii.github.io/atom.xml">
@@ -28,7 +28,7 @@ Gridea 主页
       <div class="main-content">
         <div class="site-header">
   <a href="https://touchmii.github.io">
-  <img class="avatar" src="https://touchmii.github.io/images/avatar.png?v=1602464114120" alt="">
+  <img class="avatar" src="https://touchmii.github.io/images/avatar.png?v=1602464418059" alt="">
   </a>
   <h1 class="site-title">
     Gridea
@@ -144,6 +144,32 @@ Gridea 主页
 
         
 
+        
+          
+            <link rel="stylesheet" href="https://unpkg.com/gitalk/dist/gitalk.css">
+<script src="https://unpkg.com/gitalk/dist/gitalk.min.js"></script>
+
+<div id="gitalk-container"></div>
+
+<script>
+
+  var gitalk = new Gitalk({
+    clientID: 'eb1e6f74d6f27e26e234',
+    clientSecret: '7a99bc023187cac72f40b782e3e5294c66108e9b',
+    repo: 'blogtalk.github.io',
+    owner: 'touchmii',
+    admin: ['touchmii'],
+    id: (location.pathname).substring(0, 49),      // Ensure uniqueness and length less than 50
+    distractionFreeMode: false  // Facebook-like distraction free mode
+  })
+
+  gitalk.render('gitalk-container')
+
+</script>
+
+          
+
+          
         
 
         <div class="site-footer">
