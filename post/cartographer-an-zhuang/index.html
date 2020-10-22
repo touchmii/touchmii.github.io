@@ -8,7 +8,7 @@
 <meta name="keywords" content="">
 <meta name="description" content="温故而知新">
 <meta name="theme-color" content="">
-<title>OpenTCS 二次开发 | Gridea</title>
+<title>Cartographer 安装 | Gridea</title>
 <link rel="shortcut icon" href="/favicon.ico?v=1603355611520">
 <link rel="stylesheet" href="/media/css/pisces.css">
 <link rel="stylesheet" href="/media/fonts/font-awesome.css">
@@ -38,7 +38,7 @@
 
 
 
-  <meta name="description" content="OpenTCS 二次开发" />
+  <meta name="description" content="Cartographer 安装" />
   <meta name="keywords" content="" />
 </head>
 
@@ -241,8 +241,8 @@
           <div class="section bg-color post post-page">
             <section class="post-header">
   <h1 class="post-title">
-    <a class="post-title-link" href="https://touchmii.github.io/post/opentcs-er-ci-kai-fa/">
-      OpenTCS 二次开发
+    <a class="post-title-link" href="https://touchmii.github.io/post/cartographer-an-zhuang/">
+      Cartographer 安装
     </a>
   </h1>
   <div class="post-meta">
@@ -250,24 +250,349 @@
     <span class="meta-item pc-show">
       <i class="fa fa-calendar-o"></i>
       <span class="language" data-lan="publish">发布于</span>
-      <span class="publish-time" data-t="2020-10-12 08:38:51">2020-10-12</span>
+      <span class="publish-time" data-t="2020-10-22 16:30:37">2020-10-22</span>
       <span class="post-meta-divider pc-show">|</span>
     </span>
     
     <span class="meta-item">
       <i class="fa fa-clock-o"></i>
-      <span>1<span class="language" data-lan="minute">分钟</span></span>
+      <span>8<span class="language" data-lan="minute">分钟</span></span>
     </span>
     <span class="meta-item">
       <span class="post-meta-divider">|</span>
       <i class="fa fa-file-word-o"></i>
-      <span>1<span class="pc-show language" data-lan="words">字数</span></span>
+      <span>1514<span class="pc-show language" data-lan="words">字数</span></span>
     </span>
     
   </div>
 </section>
             <div class="post-body next-md-body" id="post_body">
-              <p>a</p>
+              <ol>
+<li>安装</li>
+</ol>
+<p>依赖安装</p>
+<pre><code class="language-plain">sudo apt-get install -y \
+    cmake \
+    g++ \
+    git \
+    google-mock \
+    libboost-all-dev \
+    libcairo2-dev \
+    libeigen3-dev \
+    libgflags-dev \
+    libgoogle-glog-dev \
+    liblua5.2-dev \
+    libsuitesparse-dev \
+    ninja-build \
+    python-sphinx \
+    stow
+</code></pre>
+<p>注意使用前记得先初始化一下，即建立src文件夹，不然你下面的源码连接是放不进去的。</p>
+<p>wstoolinit src</p>
+<p>使用wstool获取源码链接</p>
+<p>wstool merge -t src<a href="https://raw.githubusercontent.com/googlecartographer/cartographer_ros/master/cartographer_ros.rosinstall">https://raw.githubusercontent.com/googlecartographer/cartographer_ros/master/cartographer_ros.rosinstall</a></p>
+<p>如果获取失败可以配置一下代理export http_proxy=http://127.0.0.1:1088;export https_p<a href="roxy=http://127.0.0.1:1088;">roxy=http://127.0.0.1:</a>1088;</p>
+<p>把ip地址和端口号改成代理软件的即可，如v2rayn。</p>
+<p>类似于：</p>
+<p>export https_proxy=http://192.168.0.130:1091</p>
+<p>export http_proxy=http://192.168.0.130:1091</p>
+<p>默认获取到的源码是1.0版本的，如果需要更换版本把src/.rosinstall文件里的版本好改为master即可，ceres-solver的版本可以不用改。使用最新版需要absl库</p>
+<pre><code class="language-plain">- git: {local-name: cartographer, uri: 'https://github.com/cartographer-project/cartographer.git', version: 'master'}
+- git: {local-name: cartographer_ros, uri: 'https://github.com/cartographer-project/cartographer_ros.git', version: 'master'}
+- git: {local-name: ceres-solver, uri: 'https://ceres-solver.googlesource.com/ceres-solver.git', version: '1.13.0'}
+</code></pre>
+<p>Could not find a package configuration file provided by &quot;absl&quot; with any of</p>
+<p>the following names:</p>
+<p>如安装最新版本，会提示以上错误。手动安装即可，注意要编译成动态库，官方教程编译的是静态库。</p>
+<pre><code class="language-plain">git clone https://github.com/abseil/abseil-cpp.git
+mkdir build &amp; cd build
+cmake .. -DCMAKE_POSITION_INDEPENDENT_CODE:BOOL=ON
+cmake .. -DBUILD_TESTING:BOOL=OFF
+cmake .. -DCMAKE_BUILD_TYPE:STRING=Release
+cmake .. -DCMAKE_CXX_STANDARD=11
+make
+sudo make install
+</code></pre>
+<p>如果使用zsh需要把cmake指令后面的；分号去掉<br>
+在上面的catkin_make_isolated --install --use-ninja 这一步时遇到一个build error</p>
+<pre><code class="language-plain">CMake Error at /home/xxx/catkin_ws/install_isolated/lib/cmake/Ceres/CeresConfig.cmake:88 (message):
+Failed to find Ceres - Missing requested Ceres components:
+[SparseLinearAlgebraLibrary] (components requested:
+</code></pre>
+<p>解决办法：</p>
+<pre><code class="language-plain">在/home/xxx/catkin_ws_cartographer/build_isolated/ceres-solver/install/CMakeCache.txt 里找到EIGENSPARSE:BOOL=OFF ， 把OFF 改成ON
+</code></pre>
+<p>细致入门请参阅:</p>
+<p><a href="https://wenku.baidu.com/view/bf8ca1a0998fcc22bcd10dfd.html?sxts=1540872677307#">https://wenku.baidu.com/view/bf8ca1a0998fcc22bcd10dfd.html?sxts=1540872677307#</a></p>
+<p>入门参考教程：</p>
+<p><a href="https://blog.csdn.net/YiKangJ/article/details/88845663">https://blog.csdn.net/YiKangJ/article/details/88845663</a>【翻译的官方文档(局部)】</p>
+<p><a href="https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html">https://google-cartographer-ros.readthedocs.io/en/latest/compilation.html</a>【官方文档】</p>
+<p>相关操作入门代码：</p>
+<p>检验bag包是否正常：</p>
+<p>cartographer_rosbag_validate -bag_filename 【你bag包的名字】.bag</p>
+<ol start="2">
+<li>配置</li>
+</ol>
+<p>⚠️car的launch文件会发布tf坐标转换，确保雷达的launch文件未发布tf，否则会起冲突，或者使用rosrun来运行雷达驱动包，tf一般需要在launch文件里读区urdf或xacro调用robot_state_publisher才能发布。</p>
+<h3 id="2x-发布坐标话题">2.x 发布坐标话题</h3>
+<p>car默认输入tf坐标树，不过更新速度比较慢，可以修改node.cc发布定位信息</p>
+<h2 id="21-不使用惯性模块without-imu">2.1 不使用惯性模块（without IMU）</h2>
+<h2 id="22使用惯性模块">2.2使用惯性模块</h2>
+<h2 id="23使用arduino-9-axes-motion-shield-作为惯性模块">2.3使用Arduino 9 Axes Motion Shield 作为惯性模块</h2>
+<p><a href="https://uploader.shimo.im/f/7v2PuR2H51QqS9Ln.pdf">Arduino 9 Axes Motion Shield.pdf</a></p>
+<p>这个模块使用的是bno055传感器,使用不同型号的Arduino板子需要短接不同的接口。</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">BOARD</th>
+<th style="text-align:left">INTERRUPT PIN</th>
+<th style="text-align:left">RESET PIN</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Arduino Uno</td>
+<td style="text-align:left">D2</td>
+<td style="text-align:left">D4</td>
+</tr>
+<tr>
+<td style="text-align:left">Arduino Leonardo</td>
+<td style="text-align:left">D7</td>
+<td style="text-align:left">D4</td>
+</tr>
+<tr>
+<td style="text-align:left">Arduino Yun</td>
+<td style="text-align:left">D7</td>
+<td style="text-align:left">D4</td>
+</tr>
+<tr>
+<td style="text-align:left">Arduino Ethernet</td>
+<td style="text-align:left">D2</td>
+<td style="text-align:left">D4</td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">Arduino Due</th>
+<th style="text-align:left">D2</th>
+<th style="text-align:left">D4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Arduino Mega</td>
+<td style="text-align:left">D2</td>
+<td style="text-align:left">D4</td>
+</tr>
+</tbody>
+</table>
+<pre><code class="language-plain">git clone --recurse-submodules https://github.com/Vijfendertig/rosserial_adafruit_bno055.git
+rosdep install --from-paths src --ignore-src --rosdistro=${ROS_DISTRO} -y
+catkin_make -DARDUINO_SDK_PATH=/opt/arduino-1.8.8
+source ./devel/setup.bash
+</code></pre>
+<p>arduino安装,arduino sdk path 可直接使用下面解压后的地址，无需安装Arduino IDE</p>
+<pre><code class="language-plain">wget https://downloads.arduino.cc/arduino-1.8.12-linux64.tar.xz
+tar -xvf arduino-1.8.12-linux64.tar.xz
+</code></pre>
+<p>项目使用的是板子是micro，试了一下Uno 有问题，然后换了Leonardo可以正常工作。可能的原因是Micro和Leonardod都是使用USB CDC串口，而Uno不是，修改cmake文件的板子型号编译即可</p>
+<pre><code class="language-plain">vim src/rosserial_adafruit_bno055/firmware/CMakeLists.txt
+catkin_make rosserial_adafruit_bno055_firmware_arduino_micro
+</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left">BOARD</th>
+<th style="text-align:left">USB CDC NAME</th>
+<th style="text-align:left">SERIAL PINS</th>
+<th style="text-align:left">SERIAL1 PINS</th>
+<th style="text-align:left">SERIAL2 PINS</th>
+<th style="text-align:left">SERIAL3 PINS</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left">Uno, Nano, Mini</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">0(RX), 1(TX)</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">Mega</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">0(RX), 1(TX)</td>
+<td style="text-align:left">19(RX), 18(TX)</td>
+<td style="text-align:left">16(RX), 17(TX)</td>
+<td style="text-align:left">15(RX), 14(TX)</td>
+</tr>
+<tr>
+<td style="text-align:left">Leonardo, Micro, Yún</td>
+<td style="text-align:left">Serial</td>
+<td style="text-align:left">0(RX), 1(TX)</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">Uno WiFi Rev.2</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">Connected to USB</td>
+<td style="text-align:left">0(RX), 1(TX)</td>
+<td style="text-align:left">Connected to NINA</td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">MKR boards</td>
+<td style="text-align:left">Serial</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">13(RX), 14(TX)</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">Zero</td>
+<td style="text-align:left">SerialUSB (Native USB Port only)</td>
+<td style="text-align:left">Connected to Programming Port</td>
+<td style="text-align:left">0(RX), 1(TX)</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+<tr>
+<td style="text-align:left">Due</td>
+<td style="text-align:left">SerialUSB (Native USB Port only)</td>
+<td style="text-align:left">0(RX), 1(TX)</td>
+<td style="text-align:left">19(RX), 18(TX)</td>
+<td style="text-align:left">16(RX), 17(TX)</td>
+<td style="text-align:left">15(RX), 14(TX)</td>
+</tr>
+<tr>
+<td style="text-align:left">101</td>
+<td style="text-align:left">Serial</td>
+<td style="text-align:left"></td>
+<td style="text-align:left">0(RX), 1(TX)</td>
+<td style="text-align:left"></td>
+<td style="text-align:left"></td>
+</tr>
+</tbody>
+</table>
+<p>下载</p>
+<p>确定好板子使用的是那个接口，一般为/dev/ttyACM0 或1，需要在Cmake文件里面修改</p>
+<p><a href="https://www.smslit.top/2015/12/04/usbttlInLinux-Arduino/">https://www.smslit.top/2015/12/04/usbttlInLinux-Arduino/</a>参照此处修改usb权限</p>
+<pre><code class="language-plain">catkin_make rosserial_adafruit_bno055_firmware_arduino_micro-upload
+</code></pre>
+<p>可能需要按下重启才能下载。</p>
+<pre><code class="language-plain">rosrun rosserial_python serial_node.py /dev/ttyACM1
+</code></pre>
+<p>如果提示rosserial_python未找到，sudo apt-get install ros-kinetic-rosserial安装即可</p>
+<pre><code class="language-plain">rosrun rosserial_python serial_node.py /dev/ttyACM1
+[INFO] [1596880509.743325]: ROS Serial Python Node
+[INFO] [1596880509.748008]: Connecting to /dev/ttyACM1 at 57600 baud
+[INFO] [1596880511.864722]: Note: publish buffer size is 384 bytes
+[INFO] [1596880511.865006]: Setup publisher on bno055/imu [rosserial_adafruit_bno055/Imu]
+[INFO] [1596880511.867442]: Setup publisher on bno055/calib_status [rosserial_adafruit_bno055/CalibrationStatus]
+[INFO] [1596880511.870387]: Note: subscribe buffer size is 128 bytes
+[INFO] [1596880511.870631]: Setup subscriber on /bno055/enable [std_msgs/Bool]
+</code></pre>
+<p>可以使用rostopic list查看是否有bno055开头的三个话题<br>
+给/bno055/enable话题发送布尔类型变量启用</p>
+<p>rostopic pub /bno055/enable std_msgs/Bool &quot;data: true&quot;</p>
+<p>再查看/bno055/imu 是否有数据输出</p>
+<pre><code class="language-plain">rostopic echo /bno055/imu
+header: 
+  seq: 1
+  stamp: 
+    secs: 1596881041
+    nsecs: 964888006
+  frame_id: &quot;bno055&quot;
+orientation: 
+  x: -0.303344726562
+  y: 0.949096679688
+  z: 0.0794677734375
+  w: 0.0296630859375
+angular_velocity: 
+  x: 0.00444444455206
+  y: -0.00111111113802
+  z: 0.0
+linear_acceleration: 
+  x: 0.10000000149
+  y: 0.109999999404
+  z: -0.0799999982119
+---
+</code></pre>
+<h2 id="51-帮助">5.1 帮助</h2>
+<p>ros坐标系</p>
+<figure data-type="image" tabindex="1"><img src="https://uploader.shimo.im/f/TloNwQosdaAnkvA5.png!thumbnail" alt="图片" loading="lazy"></figure>
+<figure data-type="image" tabindex="2"><img src="https://uploader.shimo.im/f/E6EuoxgGCpRnCG8J.png!thumbnail" alt="图片" loading="lazy"></figure>
+<figure data-type="image" tabindex="3"><img src="https://uploader.shimo.im/f/zxC4IXsCk0yg8s2a.png!thumbnail" alt="图片" loading="lazy"></figure>
+<h3 id="31-纯定位">3.1 纯定位</h3>
+<h3 id="32-初始位姿设置">3.2 初始位姿设置</h3>
+<p>四元数换算网站<a href="https://quaternions.online">https://quaternions.online</a></p>
+<pre><code class="language-plain">rosservice list
+/cartographer_node/get_loggers
+/cartographer_node/set_logger_level
+/cartographer_occupancy_grid_node/get_loggers
+/cartographer_occupancy_grid_node/set_logger_level
+/finish_trajectory
+/get_trajectory_states
+/read_metrics
+/robot_state_publisher/get_loggers
+/robot_state_publisher/set_logger_level
+/robot_state_publisher2/get_loggers
+/robot_state_publisher2/set_logger_level
+/rosout/get_loggers
+/rosout/set_logger_level
+/rviz/get_loggers
+/rviz/reload_shaders
+/rviz/set_logger_level
+/sdkeli_ls1207de/get_loggers
+/sdkeli_ls1207de/set_logger_level
+/sdkeli_ls1207de/set_parameters
+/start_trajectory
+/submap_query
+/trajectory_query
+/write_state
+</code></pre>
+<p>最新版</p>
+<pre><code class="language-plain">rosservice call /finish_trajectory 3
+status: 
+code: 0
+message: &quot;Finished trajectory 3.&quot;
+➜ carg rosservice call /start_trajectory &quot;configuration_directory: '/home/ls/carg/install_isolated/share/cartographer_ros/configuration_files'
+configuration_basename: 'my_backpack_2d.lua'
+use_initial_pose: true
+initial_pose:
+position: {x: 7.7, y: -3.0, z: 0.0}
+orientation: {x: 0.0, y: 0.0, z: -0.707, w: 0.707}
+relative_to_trajectory_id: 0&quot;
+status: 
+code: 0
+message: &quot;Success.&quot;
+trajectory_id: 4
+</code></pre>
+<p>可使用tab键补全默认的参数，注意四元数需要精确到小数点后三位。<br>
+老版本，1.0</p>
+<pre><code class="language-plain">rosservice call /finish_trajectory 1
+rosrun cartographer_ros cartographer_start_trajectory -configuration_basename=backpack_2d.lua -configuration_directory=/home/calyu/catkin_ws/install_isolated/share/cartographer_ros/configuration_files -initial_pose=&quot;{to_trajectory_id=0,relative_pose={translation={0.0,0.0,5},rotation={0.,0.,0.0}}}
+</code></pre>
+<pre><code class="language-plain">rosservice call /get_trajectory_states
+status:
+code: 0
+message: ''
+trajectory_states:
+header:
+seq: 0
+stamp:
+secs: 1598013747
+nsecs: 696791564
+frame_id: ''
+trajectory_id: [0, 1, 2, 3, 4]
+trajectory_state: [2, 3, 3, 3, 0]
+</code></pre>
+<p>需要先关闭建图ID，然后在开启一个新的建图ID。可以通过python来设置上电启动的初始位姿。</p>
 
             </div>
             
@@ -280,7 +605,7 @@
     </li>
     <li class="post-copyright-link">
       <strong class="language" data-lan="link">本文链接：</strong>
-      <a href="https://touchmii.github.io/post/opentcs-er-ci-kai-fa/" title="OpenTCS 二次开发">https://touchmii.github.io/post/opentcs-er-ci-kai-fa/</a>
+      <a href="https://touchmii.github.io/post/cartographer-an-zhuang/" title="Cartographer 安装">https://touchmii.github.io/post/cartographer-an-zhuang/</a>
     </li>
     <li class="post-copyright-license">
       <strong class="language" data-lan="copyright">版权声明： </strong>
@@ -293,15 +618,11 @@
   <div class="nav">
     <div class="nav-prev">
       
-        <i class="fa fa-chevron-left"></i>
-        <a class="nav-pc-next" title="Cartographer 安装" href="https://touchmii.github.io/post/cartographer-an-zhuang/">Cartographer 安装</a class="nav-pc-next">
-        <a class="nav-mobile-prev" title="Cartographer 安装" href="https://touchmii.github.io/post/cartographer-an-zhuang/">上一篇</a>
-      
     </div>
     <div class="nav-next">
       
-        <a class="nav-pc-next" title="关于" href="https://touchmii.github.io/post/about/">关于</a>
-        <a class="nav-mobile-next" title="关于" href="https://touchmii.github.io/post/about/">下一篇</a>
+        <a class="nav-pc-next" title="OpenTCS 二次开发" href="https://touchmii.github.io/post/opentcs-er-ci-kai-fa/">OpenTCS 二次开发</a>
+        <a class="nav-mobile-next" title="OpenTCS 二次开发" href="https://touchmii.github.io/post/opentcs-er-ci-kai-fa/">下一篇</a>
         <i class="fa fa-chevron-right"></i>
       
     </div>
